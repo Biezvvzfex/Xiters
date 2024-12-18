@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Fales Xiters</title>
+  <style>
+    /* Configurações Globais */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Títulos */
+    h1 {
+      text-align: center;
+      font-size: 20px;
+      color: #444;
+      margin-bottom: 15px;
+    }
+
+    /* Detalhes */
+    .details {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+    .details p {
+      margin: 5px 0;
+    }
+
+    /* Total */
+    .total {
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px 0;
+      color: #27ae60;
+    }
+
+    /* QR Code */
+    .qr-code-container {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .qr-code-container img {
+      max-width: 150px;
+      height: auto;
+      margin: 10px 0;
+    }
+    .pix-code {
+      background: #f4f4f9;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #333;
+      word-break: break-word;
+      margin-top: 10px;
+    }
+
+    /* Timer */
+    .timer {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+      color: #ffcc00;
+    }
+    .expired {
+      color: #ff6b6b;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* Mensagem */
+    .message {
+      margin: 20px 0;
+      padding: 12px;
+      background: #27ae60;
+      color: #fff;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.5;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Botão */
+    .btn-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 12px 20px;
+      font-size: 14px;
+      color: #fff;
+      background: #27ae60;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #1e8b4d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Checkout - Fales Xiters</h1>
+    <div class="details">
+      <p><strong>Nome:</strong> <span id="name"></span></p>
+      <p><strong>E-mail:</strong> <span id="email"></span></p>
+      <p><strong>Telefone:</strong> <span id="phone"></span></p>
+    </div>
+    <div class="total">Total a pagar: R$ 25,00</div>
+    <div class="qr-code-container" id="qrCodeContainer">
+      <h2>Pagamento Pix</h2>
+      <img id="qrCode" alt="QR Code Pix">
+      <div class="pix-code" id="pixCode"></div>
+      <div class="timer" id="timer">QR Code expira em: 30:00</div>
+    </div>
+    <div class="message">
+      <strong>📧 Atenção:</strong><br>
+      Após a confirmação do pagamento, o acesso ao <strong>Xit Exclusivo</strong> será enviado automaticamente para o seu e-mail cadastrado.
+    </div>
+    <div class="btn-container">
+      <a href="index.html" class="btn">Voltar para a Tela Inicial</a>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    // Recebe os dados do formulário via URL
+    const urlParams = new URLSearchParams(window.location.search);
+    document.getElementById("name").textContent = urlParams.get("name");
+    document.getElementById("email").textContent = urlParams.get("email");
+    document.getElementById("phone").textContent = urlParams.get("phone");
+
+    // Código Pix fornecido
+    const pixCode = "00020126420014BR.GOV.BCB.PIX0120bieldados1@gmail.com520400005303986540525.005802BR5925Antonio Gabriel da Concei6009SAO PAULO61080540900062250521X2uj3aDk0TSJyqld7xxdm6304D7FD";
+
+    // Gera o QR Code e exibe o código Pix
+    QRCode.toDataURL(pixCode, { width: 150 }, (err, url) => {
+      if (!err) {
+        document.getElementById("qrCode").src = url;
+      } else {
+        console.error("Erro ao gerar o QR Code:", err);
+      }
+    });
+
+    document.getElementById("pixCode").textContent = pixCode;
+
+    // Timer de 30 minutos
+    const timerElement = document.getElementById("timer");
+    let timeLeft = 30 * 60; // 30 minutos em segundos
+
+    const updateTimer = () => {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerElement.textContent = `QR Code expira em: ${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      timeLeft--;
+
+      if (timeLeft < 0) {
+        clearInterval(timerInterval);
+        document.getElementById("qrCodeContainer").innerHTML = `
+          <p class="expired">⚠️ O QR Code expirou. Por favor, gere um novo pagamento.</p>
+        `;
+      }
+    };
+
+    const timerInterval = setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>
